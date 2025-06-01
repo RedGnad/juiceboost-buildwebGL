@@ -1,30 +1,51 @@
 {
   "headers": [
     {
-      "source": "/Build/(.*)\\.framework\\.js\\.br$",
+      "source": "/Build/:file.data.br",
       "headers": [
-        { "key": "Content-Encoding", "value": "br" },
-        { "key": "Content-Type",      "value": "application/javascript" }
+        {
+          "key": "Content-Encoding",
+          "value": "br"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/octet-stream"
+        }
       ]
     },
     {
-      "source": "/Build/(.*)\\.data\\.br$",
+      "source": "/Build/:file.framework.js.br",
       "headers": [
-        { "key": "Content-Encoding", "value": "br" },
-        { "key": "Content-Type",      "value": "application/octet-stream" }
+        {
+          "key": "Content-Encoding",
+          "value": "br"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
+        }
       ]
     },
     {
-      "source": "/Build/(.*)\\.wasm\\.br$",
+      "source": "/Build/:file.loader.js",
       "headers": [
-        { "key": "Content-Encoding", "value": "br" },
-        { "key": "Content-Type",      "value": "application/wasm" }
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
+        }
       ]
     },
     {
-      "source": "/Build/(.*)\\.loader\\.js$",
+      "source": "/Build/:file.wasm.br",
       "headers": [
-        { "key": "Content-Type",      "value": "application/javascript" }
+        {
+          "key": "Content-Encoding",
+          "value": "br"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/wasm"
+        }
       ]
     }
   ]
