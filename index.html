@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <title>JuiceBoost WebGL</title>
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css">
+</head>
+<body>
+  <div id="unity-container" class="unity-desktop">
+    <canvas id="unity-canvas" width="960" height="600"></canvas>
+    <div id="unity-loading-bar">
+      <div id="unity-progress-bar-full"></div>
+    </div>
+    <div id="unity-warning"></div>
+  </div>
+
+  <!-- ============================
+       1) Firebase Compat (avant Unity)
+       ============================ -->
+  <script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore-compat.js"></script>
+  <script>
+    // 🔧 Votre configuration Firebase (identique à celle qui fonctionnait auparavant)
+    const cfg = {
+      apiKey: "AIzaSyAQlCQelLsHOHqarUeyp78nnrrlC3pSv2M",
+      authDomain: "juiceboost-bddf8.firebaseapp.com",
+      projectId: "juiceboost-bddf8",
+      storageBucket: "juiceboost-bddf8.appspot.com",
+      messagingSenderId: "478090950352",
+      appId: "1:478090950352:web:aa40a374631d6de04f10d5"
+    };
+    firebase.initializeApp(cfg);
+
+    // 👤 Connexion anonyme (comme avant)
+    firebase.auth().signInAnonymously()
+      .then(({ user }) => {
+        console.log("✔ Auth OK, UID:", user.uid);
+        // Expose la DB Firestore **après** la réussite de l’auth
+        window.db = firebase.firestore();
+      })
+      .catch(e => console.error("❌ Auth failed:", e)); // Si la clé était mauvaise, c’est ici qu’apparaît l’erreur :contentReference[oaicite:0]{index=0}.
+  </script>
+
+  <!-- ============================
+       2) Unity WebGL loader corrigé
+       ============================ -->
+  <script>
+    const canvas = document.querySelector("#unity-canvas");
+    const buildUrl = "Build";
+    const loaderUrl = `${buildUrl}/05341b76d4a90f70e910dd0a415d4c33.loader.js`;
+
+    const config = {
+      dataUrl:    buildUrl + "/6db3f883f8e20a7fe5108b3b6ba774ae.data.br",
+      frameworkUrl: buildUrl + "/d622bf25d0976a148a48731f07c9d262.framework.js.br",
+      codeUrl:    buildUrl + "/4497f74fc75fc6635a8bbc6232f0f4e0.wasm.br",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "YourCompany",
+      productName: "JuiceBoost",
+      productVersion: "1.0",
+      showBanner: () => {}  // ou votre propre fonction d’affichage
+    };
+
+    document.querySelector("#unity-loading-bar").style.display = "block";
+
+    const script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      // Lorsque createUnityInstance se termine, on récupère l’instance dans `instance`
+      createUnityInstance(canvas, config, progress => {
+        document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
+      }).then((instance) => {
+        // 👉 Ici, on assigne l’instance Unity à window.unityInstance
+        window.unityInstance = instance;  // indispensable pour que SendMessage puisse fonctionner :contentReference[oaicite:1]{index=1}
+        document.querySelector("#unity-loading-bar").style.display = "none";
+      }).catch((err) => {
+        alert(err);
+      });
+    };
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>
