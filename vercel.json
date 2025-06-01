@@ -1,6 +1,12 @@
 {
   "version": 2,
   "public": true,
+  "rewrites": [
+    {
+      "source": "/Build/:path*",
+      "destination": "/Build/:path*"
+    }
+  ],
   "headers": [
     {
       "source": "/Build/:file.wasm",
