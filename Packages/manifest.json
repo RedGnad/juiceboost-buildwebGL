@@ -1,0 +1,59 @@
+{
+  "dependencies": {
+    "com.bgtools.playerprefseditor": "1.2.2",
+    "com.mixpanel.unity": "3.5.3",
+    "com.reown.appkit.unity": "1.4.1",
+    "com.reown.core": "1.4.1",
+    "com.reown.core.common": "1.4.1",
+    "com.reown.core.crypto": "1.4.1",
+    "com.reown.core.network": "1.4.1",
+    "com.reown.core.storage": "1.4.1",
+    "com.reown.sign": "1.4.1",
+    "com.reown.sign.nethereum": "1.4.1",
+    "com.reown.sign.nethereum.unity": "1.4.1",
+    "com.reown.sign.unity": "1.4.1",
+    "com.reown.unity.dependencies": "1.4.1",
+    "com.skibitsky.scene-reference": "1.1.1",
+    "com.unity.ide.rider": "3.0.34",
+    "com.unity.ide.visualstudio": "2.0.22",
+    "com.unity.mobile.android-logcat": "1.4.4",
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
+    "com.unity.test-framework": "1.4.6",
+    "com.unity.textmeshpro": "3.0.9",
+    "com.unity.ugui": "2.0.0",
+    "com.yasirkula.ingamedebugconsole": "1.6.8",
+    "io.sentry.unity": "2.4.0",
+    "com.unity.modules.androidjni": "1.0.0",
+    "com.unity.modules.animation": "1.0.0",
+    "com.unity.modules.assetbundle": "1.0.0",
+    "com.unity.modules.audio": "1.0.0",
+    "com.unity.modules.director": "1.0.0",
+    "com.unity.modules.imageconversion": "1.0.0",
+    "com.unity.modules.imgui": "1.0.0",
+    "com.unity.modules.jsonserialize": "1.0.0",
+    "com.unity.modules.particlesystem": "1.0.0",
+    "com.unity.modules.screencapture": "1.0.0",
+    "com.unity.modules.ui": "1.0.0",
+    "com.unity.modules.uielements": "1.0.0",
+    "com.unity.modules.unitywebrequest": "1.0.0",
+    "com.unity.modules.unitywebrequestassetbundle": "1.0.0",
+    "com.unity.modules.unitywebrequesttexture": "1.0.0",
+    "com.unity.modules.unitywebrequestwww": "1.0.0"
+  },
+  "scopedRegistries": [
+    {
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.bgtools.playerprefseditor",
+        "com.mixpanel.unity",
+        "com.nethereum.unity",
+        "com.openupm",
+        "com.skibitsky.scene-reference",
+        "com.yasirkula.ingamedebugconsole",
+        "io.sentry.unity",
+        "com.reown"
+      ]
+    }
+  ]
+}
