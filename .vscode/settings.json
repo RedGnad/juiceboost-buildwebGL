@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "juice-boost-main copie.sln"
+    "dotnet.defaultSolution": "juice-boost-main copie 3.sln"
 }

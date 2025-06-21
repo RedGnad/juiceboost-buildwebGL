@@ -16,6 +16,11 @@ public class LaserSetSpawner : MonoBehaviour
     [Tooltip("Durée d'attente après la phase dangereuse (en secondes)")]
     public float waitAfterFire = 1f;
 
+    [Header("Laser SFX")]
+    public AudioClip laserChargeSfx;
+    public AudioClip laserFireSfx;
+    public AudioSource sfxAudioSource;
+
     private float nextLaserAt = 0f;
 
     void Start()
@@ -118,6 +123,11 @@ public class LaserSetSpawner : MonoBehaviour
 
             // 2. Attente avant dangerosité (synchronisé)
             float timer = 0f;
+
+            // SFX de chargement
+            if (laserChargeSfx != null && sfxAudioSource != null)
+                sfxAudioSource.PlayOneShot(laserChargeSfx);
+
             while (timer < waitBeforeFire)
             {
                 timer += Time.deltaTime;
@@ -125,6 +135,9 @@ public class LaserSetSpawner : MonoBehaviour
             }
 
             // 3. Phase dangereuse (synchronisé)
+            if (laserFireSfx != null && sfxAudioSource != null)
+                sfxAudioSource.PlayOneShot(laserFireSfx);
+
             for (int i = 0; i < lasers.Length; i++)
                 lasers[i].SetDangerous(true);
 

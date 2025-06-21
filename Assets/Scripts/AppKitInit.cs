@@ -193,7 +193,7 @@ namespace Sample
                     new RedirectData { Native = "appkit-sample-unity://" }
                 ),
                 customWallets = GetCustomWallets(),
-                connectViewWalletsCountMobile = 5,
+                connectViewWalletsCountMobile = 6, // Augmenté de 5 à 6 pour afficher plus de wallets
                 supportedChains = new[] { monadTestnet },
                 socials = new[]
                 {
@@ -318,15 +318,37 @@ namespace Sample
 
         private Wallet[] GetCustomWallets()
         {
-    #if UNITY_ANDROID && !UNITY_EDITOR
-            return new[]
+            // Détecte si on est sur mobile (natif ou WebGL mobile)
+            bool isMobile = Application.isMobilePlatform || 
+                           (Application.platform == RuntimePlatform.WebGLPlayer && 
+                            SystemInfo.deviceType == DeviceType.Handheld);
+
+            if (isMobile)
             {
-                new Wallet { Name = "Phantom",  ImageUrl = "...", MobileLink = "phantom://wc" },
-                new Wallet { Name = "Backpack", ImageUrl = "...", MobileLink = "backpack://" }
-            };
-    #else
-            return null;
-    #endif
+                // Sur mobile, ajoute Backpack et HAHA aux wallets par défaut
+                return new[]
+                {
+                    new Wallet 
+                    { 
+                        Name = "Backpack", 
+                        ImageUrl = "https://backpack.app/favicon.ico", 
+                        MobileLink = "backpack://",
+                        WebappLink = "https://backpack.app/"
+                    },
+                    new Wallet 
+                    { 
+                        Name = "HAHA", 
+                        ImageUrl = "https://raw.githubusercontent.com/RedGnad/pokenads/master/pokenads-logo8.png", // Remplace par l'URL HAHA si différente
+                        MobileLink = "haha://", // Si HAHA a des deep links
+                        WebappLink = "https://haha-wallet-url/" // Remplace par l'URL HAHA
+                    }
+                };
+            }
+            else
+            {
+                // Sur desktop, garde le comportement original (null = wallets par défaut)
+                return null;
+            }
         }
     }
 }

@@ -7,7 +7,7 @@ using Sample;
 public class GameManager : MonoBehaviour
 {
     [DllImport("__Internal")]
-    private static extern void SubmitScore(int score);
+    private static extern void SubmitScore(int score, int coins);
 
     public static GameManager Instance { get; private set; }
     public TMP_Text gameOverText;
@@ -28,6 +28,14 @@ public class GameManager : MonoBehaviour
             gameOverText.gameObject.SetActive(false);
 
         AppKitInit.OnAppKitInitialized += OnAppKitInitialized;
+    }
+
+    void Start()
+    {
+        var musicLooper = FindObjectOfType<MusicLooper>();
+        var appKit = FindObjectOfType<Sample.AppKitInit>();
+        if (musicLooper != null && appKit != null && (appKit.walletWaitPanel == null || !appKit.walletWaitPanel.activeSelf))
+            musicLooper.PlayMusicFromStart();
     }
 
     private void OnAppKitInitialized()
@@ -58,6 +66,8 @@ public class GameManager : MonoBehaviour
             spawner.StopSpawning();
         foreach (var spawner in FindObjectsOfType<WarningSpawner>())
             spawner.StopSpawning();
+        foreach (var spawner in FindObjectsOfType<CoinSpawner>())
+            spawner.StopSpawning();
 
         // Désactive le mouvement du joueur si le panel wallet est affiché
         var appKitInit = FindObjectOfType<Sample.AppKitInit>();
@@ -75,8 +85,9 @@ public class GameManager : MonoBehaviour
         }
 
         int finalScore = Mathf.FloorToInt(ScoreManager.Instance.CurrentScore);
-        SubmitScore(finalScore);
-        Debug.Log($"[GameManager] SubmitScore called with {finalScore}");
+        int coins = CoinManager.Instance != null ? CoinManager.Instance.Coins : 0;
+        SubmitScore(finalScore, coins);
+        Debug.Log($"[GameManager] SubmitScore called with {finalScore} and coins {coins}");
     }
 
     void Update()
@@ -104,6 +115,8 @@ public class GameManager : MonoBehaviour
             foreach (var spawner in FindObjectsOfType<ZapperSpawner>())
                 spawner.RestartSpawning();
             foreach (var spawner in FindObjectsOfType<WarningSpawner>())
+                spawner.RestartSpawning();
+            foreach (var spawner in FindObjectsOfType<CoinSpawner>())
                 spawner.RestartSpawning();
 
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);

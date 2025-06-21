@@ -1,5 +1,5 @@
 mergeInto(LibraryManager.library, {
-  SubmitScore: function (score) {
+  SubmitScore: function (score, coins) {
     setTimeout(function () {
       try {
         if (!window.db || !firebase.auth().currentUser) {
@@ -34,6 +34,7 @@ mergeInto(LibraryManager.library, {
                   bestScore: bestScore,
                   timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                   totalScore: firebase.firestore.FieldValue.increment(score),
+                  totalCoins: firebase.firestore.FieldValue.increment(coins), // Ajout ici
                 },
                 { merge: true }
               );
@@ -42,6 +43,8 @@ mergeInto(LibraryManager.library, {
             console.log(
               "[JS] Score submitted:",
               score,
+              "coins:",
+              coins,
               "for UID:",
               uid,
               "wallet:",
