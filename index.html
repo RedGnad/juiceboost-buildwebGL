@@ -5,10 +5,6 @@
   <title>JuiceBoost WebGL</title>
   <link rel="shortcut icon" href="TemplateData/favicon.ico">
   <link rel="stylesheet" href="TemplateData/style.css">
-  
-  <!-- Forcer orientation paysage sur mobile -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <meta name="screen-orientation" content="landscape">
 </head>
 <body>
   <div id="unity-container" class="unity-desktop">
@@ -51,14 +47,14 @@
     const buildUrl = "Build";
     const loaderUrl = `${buildUrl}/05341b76d4a90f70e910dd0a415d4c33.loader.js`;
     const config = {
-      dataUrl: buildUrl + "/5a0d525d5abfda3201506b5da2753cdb.data",
-      frameworkUrl: buildUrl + "/8074c761530976222072b4543f6265e7.framework.js",
-      codeUrl: buildUrl + "/0f2d6a4d1d0e2cae11df8e643f042ab4.wasm",
+      dataUrl: buildUrl + "/27947ab9d5fe76e3022841ee6ca4aee3.data",
+      frameworkUrl: buildUrl + "/8656a3c236e52c3ae03de45599d59617.framework.js",
+      codeUrl: buildUrl + "/433b861e85168406647a484330178059.wasm",
       streamingAssetsUrl: "StreamingAssets",
       companyName: "YourCompany",
       productName: "JuiceBoost",
       productVersion: "1.0",
-      showBanner: ()=>{}
+      showBanner: ()=>{}  // ou votre fonction d’affichage
     };
     document.querySelector("#unity-loading-bar").style.display = "block";
     const script = document.createElement("script");
@@ -71,15 +67,6 @@
       }).catch(alert);
     };
     document.body.appendChild(script);
-  </script>
-
-  <!-- Forcer orientation paysage -->
-  <script>
-    if (screen.orientation && screen.orientation.lock) {
-      screen.orientation.lock('landscape').catch(() => {
-        console.log('Orientation lock not supported');
-      });
-    }
   </script>
 </body>
 </html>
