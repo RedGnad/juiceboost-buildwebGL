@@ -28,20 +28,40 @@ namespace Sample
 
         [Header("Interaction Management")]
         [SerializeField] private bool disableInteractionsOnModal = true;
-        [SerializeField] private string[] interactionScriptNames = { "PlayerController" }; // Ajoute ici tous tes scripts d'interaction joueur
+        [SerializeField] private string[] interactionScriptNames = { "PlayerController" };
         [SerializeField] private float checkInterval = 0.2f;
 
         private List<MonoBehaviour> disabledComponents = new List<MonoBehaviour>();
         private bool isModalActive = false;
         private Coroutine modalCheckCoroutine;
         private Coroutine walletCheckCoroutine;
-
         private float walletDisconnectedTime = -1f;
 
+        // ─── WebGL Mobile Detection & JS Plugin ───
 #if UNITY_WEBGL && !UNITY_EDITOR
+        [DllImport("__Internal")]
+        private static extern string GetUserAgent();
         [DllImport("__Internal")]
         private static extern void SetWalletAddressJS(string wallet);
 #endif
+        private bool IsWebGLMobile()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            try
+            {
+                string ua = GetUserAgent();
+                return ua.Contains("Mobile") || ua.Contains("Android")
+                    || ua.Contains("iPhone") || ua.Contains("iPad");
+            }
+            catch
+            {
+                return false;
+            }
+#else
+            return false;
+#endif
+        }
+        // ────────────────────────────────────────────
 
         private void Start()
         {
@@ -52,33 +72,18 @@ namespace Sample
 
             StartCoroutine(InitializeAppKitWithRetry());
             walletCheckCoroutine = StartCoroutine(WalletPanelCheckRoutine());
-
-            // GameOver auto si panel affiché au lancement
             StartCoroutine(AutoGameOverIfPanel());
         }
 
         private void Update()
         {
-            // Désactive les scripts d'interaction joueur tant que le panel wallet est affiché
-            if (walletWaitPanel != null && walletWaitPanel.activeSelf)
+            bool panelUp = walletWaitPanel != null && walletWaitPanel.activeSelf;
+            foreach (var script in FindObjectsOfType<MonoBehaviour>())
             {
-                foreach (var script in FindObjectsOfType<MonoBehaviour>())
-                {
-                    if (script == null) continue;
-                    foreach (var target in interactionScriptNames)
-                        if (script.GetType().Name == target && script.enabled)
-                            script.enabled = false;
-                }
-            }
-            else
-            {
-                foreach (var script in FindObjectsOfType<MonoBehaviour>())
-                {
-                    if (script == null) continue;
-                    foreach (var target in interactionScriptNames)
-                        if (script.GetType().Name == target && !script.enabled)
-                            script.enabled = true;
-                }
+                if (script == null) continue;
+                foreach (var target in interactionScriptNames)
+                    if (script.GetType().Name == target)
+                        script.enabled = !panelUp;
             }
         }
 
@@ -86,11 +91,7 @@ namespace Sample
         {
             yield return new WaitForSeconds(0.1f);
             if (walletWaitPanel != null && walletWaitPanel.activeSelf)
-            {
-                var gm = GameManager.Instance;
-                if (gm != null && !gm.IsGameOver)
-                    gm.GameOver();
-            }
+                GameManager.Instance?.GameOver();
         }
 
         private IEnumerator WalletPanelCheckRoutine()
@@ -101,62 +102,39 @@ namespace Sample
                 {
                     var task = AppKit.GetAccountAsync();
                     while (!task.IsCompleted) yield return null;
-
                     if (!task.IsFaulted && task.Result != null && !string.IsNullOrEmpty(task.Result.Address))
                     {
                         WalletAddress = task.Result.Address;
                         walletDisconnectedTime = -1f;
-                        Debug.Log("[AppKitInit] WalletAddress récupéré: " + WalletAddress);
-                        SetWalletOnWindow(WalletAddress);
-
+#if UNITY_WEBGL && !UNITY_EDITOR
+                        SetWalletAddressJS(WalletAddress);
+#endif
                         if (walletWaitPanel != null && walletWaitPanel.activeSelf && !walletPanelHasBeenHidden)
                         {
                             walletWaitPanel.SetActive(false);
                             walletPanelHasBeenHidden = true;
-                            Debug.Log("[AppKitInit] Panel caché automatiquement (wallet connecté)");
-
                             if (!gameOverHasBeenTriggered)
                             {
-                                var gm = GameManager.Instance;
-                                if (gm != null)
-                                    gm.GameOver();
+                                GameManager.Instance?.GameOver();
                                 gameOverHasBeenTriggered = true;
                             }
                         }
-
-                        var myScoreMgr = FindObjectOfType<MyScoreManager>();
-                        if (myScoreMgr != null)
-                            myScoreMgr.RequestMyScores();
-
                         OnAppKitInitialized?.Invoke();
                         yield break;
                     }
                 }
                 else
                 {
-                    if (walletDisconnectedTime < 0f)
-                        walletDisconnectedTime = Time.time;
-
-                    if (Time.time - walletDisconnectedTime > 1f)
+                    if (walletDisconnectedTime < 0f) walletDisconnectedTime = Time.time;
+                    if (Time.time - walletDisconnectedTime > 1f && walletWaitPanel != null && !walletWaitPanel.activeSelf)
                     {
-                        if (walletWaitPanel != null && !walletWaitPanel.activeSelf)
-                        {
-                            walletWaitPanel.SetActive(true);
-                            Debug.Log("[AppKitInit] Panel réaffiché (wallet déconnecté > 1s)");
-                        }
+                        walletWaitPanel.SetActive(true);
                         walletPanelHasBeenHidden = false;
                         gameOverHasBeenTriggered = false;
                     }
                 }
-                yield return new WaitForSeconds(0.2f);
+                yield return new WaitForSeconds(checkInterval);
             }
-        }
-
-        private void SetWalletOnWindow(string wallet)
-        {
-#if UNITY_WEBGL && !UNITY_EDITOR
-            SetWalletAddressJS(wallet);
-#endif
         }
 
         public static void TryInitialize()
@@ -168,32 +146,45 @@ namespace Sample
 
         private IEnumerator InitializeAppKitWithRetry()
         {
-            if (_isInitializing || AppKit.IsInitialized) yield break;
+            // Force reinit on mobile WebGL even if already initialized
+            bool isMobile = IsWebGLMobile();
+            bool shouldReinit = AppKit.IsInitialized && isMobile;
+            if (_isInitializing || (AppKit.IsInitialized && !shouldReinit))
+                yield break;
+
             _isInitializing = true;
 
+            // EVM Chain setup (unchanged)
             var monadTestnet = new Chain(
                 ChainConstants.Namespaces.Evm,
-                chainReference: "10143",
-                name: "Monad Testnet",
-                nativeCurrency: new Currency("Monad", "MON", 18),
-                blockExplorer: new BlockExplorer("Monad Explorer", "https://explorer.testnet.monad.xyz"),
-                rpcUrl: "https://rpc.testnet.monad.xyz/",
-                isTestnet: true,
-                imageUrl: "https://raw.githubusercontent.com/RedGnad/pokenads/master/pokenads-logo8.png"
+                "10143", "Monad Testnet",
+                new Currency("Monad","MON",18),
+                new BlockExplorer("Monad Explorer","https://explorer.testnet.monad.xyz"),
+                "https://rpc.testnet.monad.xyz/",
+                true,
+                "https://raw.githubusercontent.com/RedGnad/pokenads/master/pokenads-logo8.png"
             );
 
+            // Minimal AppKitConfig changes:
             var cfg = new AppKitConfig
             {
                 projectId = "27f51a8cead380193aaf687f55e3d4af",
                 metadata = new Metadata(
                     "Pokenads",
                     "AppKit Unity Sample - Monad Testnet",
-                    "https://pokenads-c58e5.web.app",
+                    Application.absoluteURL,        // ← ensure this matches your deployed URL
                     "https://raw.githubusercontent.com/RedGnad/pokenads/master/pokenads-logo8.png",
                     new RedirectData { Native = "appkit-sample-unity://" }
                 ),
                 customWallets = GetCustomWallets(),
-                connectViewWalletsCountMobile = 6, // Augmenté de 5 à 6 pour afficher plus de wallets
+                connectViewWalletsCountMobile = 6,
+                // ── Prioritize only on WebGL mobile ──
+                includedWalletIds = isMobile ? new[]
+                {
+                    "2bd8c14e035c2d48f184aaa168559e86b0e3433228d3c4075900a221785019b0", // Backpack
+                    "719bd888109f5e8dd23419b20e749900ce4d2fc6858cf588395f19c82fd036b3", // HAHA
+                    "c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96"  // MetaMask
+                } : null,
                 supportedChains = new[] { monadTestnet },
                 socials = new[]
                 {
@@ -207,11 +198,10 @@ namespace Sample
 
             const int MAX_ATTEMPTS = 10;
             int attempts = 0;
-
             while (!AppKit.IsInitialized && attempts < MAX_ATTEMPTS)
             {
                 attempts++;
-                Debug.Log($"[AppKitInit] Tentative d'initialisation {attempts}/{MAX_ATTEMPTS}...");
+                Debug.Log($"[AppKitInit] Attempt {attempts}/{MAX_ATTEMPTS}...");
                 var initTask = AppKit.InitializeAsync(cfg);
 
                 float timer = 0f;
@@ -223,15 +213,12 @@ namespace Sample
 
                 if (initTask.IsCompleted && !initTask.IsFaulted)
                 {
-                    Debug.Log("[AppKitInit] Initialisation réussie !");
-                    AppKit.AccountConnected += OnWalletEvent;
+                    Debug.Log("[AppKitInit] Initialization succeeded!");
+                    AppKit.AccountConnected    += OnWalletEvent;
                     AppKit.AccountDisconnected += OnWalletEvent;
-                    if (disableInteractionsOnModal)
-                        StartModalCheck();
-
+                    if (disableInteractionsOnModal) StartModalCheck();
                     if (shouldSwitchScene && Application.CanStreamedLevelBeLoaded(targetSceneName))
                         UnityEngine.SceneManagement.SceneManager.LoadScene(targetSceneName);
-
                     break;
                 }
 
@@ -239,12 +226,12 @@ namespace Sample
             }
 
             if (!AppKit.IsInitialized)
-                Debug.LogError($"[AppKitInit] Échec après {MAX_ATTEMPTS} tentatives.");
+                Debug.LogError($"[AppKitInit] Failed after {MAX_ATTEMPTS} attempts.");
 
             _isInitializing = false;
         }
 
-        private void OnWalletEvent(object sender, System.EventArgs e)
+        private void OnWalletEvent(object sender, EventArgs e)
         {
             isModalActive = false;
             EnableAllInteractions();
@@ -275,7 +262,8 @@ namespace Sample
             var modal = GameObject.Find("AppKit_ModalContainer");
             if (modal != null && modal.activeInHierarchy) return true;
             foreach (var c in FindObjectsOfType<Canvas>())
-                if ((c.name.ToLower().Contains("modal") || c.name.ToLower().Contains("wallet")) && c.gameObject.activeInHierarchy)
+                if ((c.name.ToLower().Contains("modal") || c.name.ToLower().Contains("wallet"))
+                    && c.gameObject.activeInHierarchy)
                     return true;
             return false;
         }
@@ -286,9 +274,8 @@ namespace Sample
             foreach (var script in FindObjectsOfType<MonoBehaviour>())
             {
                 if (script == null) continue;
-                var name = script.GetType().Name;
                 foreach (var target in interactionScriptNames)
-                    if (name == target && script.enabled)
+                    if (script.GetType().Name == target && script.enabled)
                     {
                         script.enabled = false;
                         disabledComponents.Add(script);
@@ -318,36 +305,29 @@ namespace Sample
 
         private Wallet[] GetCustomWallets()
         {
-            // Détecte si on est sur mobile (natif ou WebGL mobile)
-            bool isMobile = Application.isMobilePlatform || 
-                           (Application.platform == RuntimePlatform.WebGLPlayer && 
-                            SystemInfo.deviceType == DeviceType.Handheld);
-
+            bool isMobile = Application.isMobilePlatform || IsWebGLMobile();
             if (isMobile)
             {
-                // Sur mobile, ajoute Backpack et HAHA aux wallets par défaut
                 return new[]
                 {
-                    new Wallet 
-                    { 
-                        Name = "Backpack", 
-                        ImageUrl = "https://backpack.app/favicon.ico", 
-                        MobileLink = "backpack://",
-                        WebappLink = "https://backpack.app/"
-                    },
-                    new Wallet 
-                    { 
-                        Name = "HAHA", 
-                        ImageUrl = "https://raw.githubusercontent.com/RedGnad/pokenads/master/pokenads-logo8.png", // Remplace par l'URL HAHA si différente
-                        MobileLink = "haha://", // Si HAHA a des deep links
-                        WebappLink = "https://haha-wallet-url/" // Remplace par l'URL HAHA
-                    }
+                    new Wallet { Name="Backpack",    ImageUrl="https://backpack.app/favicon.ico",   MobileLink="backpack://", WebappLink="https://backpack.app/", Id="2bd8c14e035c2d48f184aaa168559e86b0e3433228d3c4075900a221785019b0" },
+                    new Wallet { Name="HAHA",        ImageUrl="https://raw.githubusercontent.com/RedGnad/pokenads/master/pokenads-logo8.png", MobileLink="haha://", WebappLink="https://haha-wallet-url/", Id="719bd888109f5e8dd23419b20e749900ce4d2fc6858cf588395f19c82fd036b3" },
+                    new Wallet { Name="MetaMask",    ImageUrl="https://metamask.io/images/favicon.ico", MobileLink="metamask://wc", WebappLink="https://metamask.io/", Id="c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96" },
+                    new Wallet { Name="Trust Wallet",ImageUrl="https://trustwallet.com/assets/images/favicon.ico", MobileLink="trust://wc", Id="4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0" }
                 };
             }
             else
             {
-                // Sur desktop, garde le comportement original (null = wallets par défaut)
-                return null;
+                return new[]
+                {
+                    // Votre liste desktop existante…
+                    new Wallet { Name="Backpack",    ImageUrl="https://backpack.app/favicon.ico",   MobileLink="backpack://", WebappLink="https://backpack.app/", Id="2bd8c14e035c2d48f184aaa168559e86b0e3433228d3c4075900a221785019b0" },
+                    new Wallet { Name="HAHA",        ImageUrl="https://raw.githubusercontent.com/RedGnad/pokenads/master/pokenads-logo8.png", MobileLink="haha://", WebappLink="https://haha-wallet-url/", Id="719bd888109f5e8dd23419b20e749900ce4d2fc6858cf588395f19c82fd036b3" },
+                    new Wallet { Name="MetaMask",    ImageUrl="https://metamask.io/images/favicon.ico", MobileLink="metamask://wc", WebappLink="https://metamask.io/", Id="c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96" },
+                    new Wallet { Name="Trust Wallet",ImageUrl="https://trustwallet.com/assets/images/favicon.ico", MobileLink="trust://wc", Id="4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0" },
+                    new Wallet { Name="Phantom",     ImageUrl="https://phantom.app/img/phantom-logo.png", WebappLink="https://phantom.app/ul/browse", Id="a797aa35c0fadbfc1a53e7f675162ed5226968b44a19ee3d24385c64d1d3c393" },
+                    new Wallet { Name="Rabby",       ImageUrl="https://rabby.io/logo.png", WebappLink="https://rabby.io/" }
+                };
             }
         }
     }

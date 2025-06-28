@@ -307,7 +307,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.764151, g: 0.010813437, b: 0.62088495, a: 0.7607843}
+  m_Color: {r: 1, g: 0, b: 0.8072915, a: 0.7529412}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1470,8 +1470,8 @@ Transform:
   m_GameObject: {fileID: 487773662}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8, y: -2.9, z: -0.7}
-  m_LocalScale: {x: 0.63, y: 0.63, z: 0.63}
+  m_LocalPosition: {x: -4.59, y: -2.9, z: -0.7}
+  m_LocalScale: {x: 0.5009976, y: 0.5009976, z: 0.5009976}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -1488,7 +1488,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7aecd9dc6a11414ba27cf354237d608, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  thrust: 50
+  thrust: 42
   groundTag: Ground
   obstacleTag: Obstacle
   isFlyingParam: isFlying
@@ -1504,7 +1504,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 1
+  m_Mass: 1.1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 1
@@ -2210,6 +2210,50 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &786270577
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 786270579}
+  - component: {fileID: 786270578}
+  m_Layer: 0
+  m_Name: WalletScoreAgregator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &786270578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 786270577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64e722435b7954565b0a80e3316efe56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &786270579
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 786270577}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.2337751, y: -1.0338755, z: 0.03483575}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!222 &786270580
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5505,15 +5549,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3956787709853069322, guid: 197c72b514b2340c5ae1fc7179864e50, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.22
+      value: 0.18
       objectReference: {fileID: 0}
     - target: {fileID: 3956787709853069322, guid: 197c72b514b2340c5ae1fc7179864e50, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.22
+      value: 0.18
       objectReference: {fileID: 0}
     - target: {fileID: 3956787709853069322, guid: 197c72b514b2340c5ae1fc7179864e50, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.22
+      value: 0.18
       objectReference: {fileID: 0}
     - target: {fileID: 3956787709853069322, guid: 197c72b514b2340c5ae1fc7179864e50, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5617,3 +5661,4 @@ SceneRoots:
   - {fileID: 1098895049}
   - {fileID: 868370166}
   - {fileID: 1336469118}
+  - {fileID: 786270579}
