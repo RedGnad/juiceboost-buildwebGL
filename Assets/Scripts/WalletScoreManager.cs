@@ -6,7 +6,6 @@ public class WalletScoreManager : MonoBehaviour
     [DllImport("__Internal")]
     private static extern void TestWalletCollection();
     
-    // Fonction pour appeler le test depuis Unity
     public void RunTestWalletCollection()
     {
         #if !UNITY_EDITOR && UNITY_WEBGL
@@ -16,7 +15,6 @@ public class WalletScoreManager : MonoBehaviour
         #endif
     }
     
-    // Bouton pour tester facilement depuis l'UI
     void OnGUI()
     {
         if (GUI.Button(new Rect(10, 10, 200, 50), "Test WalletScores"))

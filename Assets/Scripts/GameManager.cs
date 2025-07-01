@@ -61,7 +61,6 @@ public class GameManager : MonoBehaviour
         if (gameOverText != null)
             gameOverText.gameObject.SetActive(true);
 
-        // Stoppe tous les spawners
         foreach (var spawner in FindObjectsOfType<ZapperSpawner>())
             spawner.StopSpawning();
         foreach (var spawner in FindObjectsOfType<WarningSpawner>())
@@ -69,7 +68,6 @@ public class GameManager : MonoBehaviour
         foreach (var spawner in FindObjectsOfType<CoinSpawner>())
             spawner.StopSpawning();
 
-        // Désactive le mouvement du joueur si le panel wallet est affiché
         var appKitInit = FindObjectOfType<Sample.AppKitInit>();
         if (appKitInit != null && appKitInit.walletWaitPanel != null && appKitInit.walletWaitPanel.activeSelf)
         {
@@ -100,12 +98,10 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // Bloque le restart si le panel wallet est affiché
         var appKitInit = FindObjectOfType<Sample.AppKitInit>();
         if (appKitInit != null && appKitInit.walletWaitPanel != null && appKitInit.walletWaitPanel.activeSelf)
             return;
 
-        // Réactive le mouvement du joueur si le panel wallet n'est plus affiché
         var player = FindObjectOfType<PlayerController>();
         if (player != null && !player.enabled)
             player.enabled = true;

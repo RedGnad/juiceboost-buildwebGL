@@ -63,7 +63,6 @@ public class ScoreManager : MonoBehaviour
         if (GameManager.Instance != null && GameManager.Instance.IsGameOver)
             return;
 
-        // Incrémente le score en fonction du multiplicateur de vitesse
         score += scoreMultiplier * CurrentSpeedMultiplier * Time.deltaTime;
         if (scoreText != null)
             scoreText.text = Mathf.FloorToInt(score) + " m";

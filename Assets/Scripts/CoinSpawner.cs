@@ -7,7 +7,7 @@ public class CoinSpawner : MonoBehaviour
     public float spawnIntervalMin = 1.5f;
     public float spawnIntervalMax = 3f;
     [Range(0f, 1f)]
-    public float spawnProbability = 0.7f; // 70% de chance de spawn à chaque intervalle
+    public float spawnProbability = 0.7f; 
     public int maxCoinsOnScreen = 5;
 
     float yMin, yMax, spawnX;
@@ -30,18 +30,15 @@ public class CoinSpawner : MonoBehaviour
         {
             yield return new WaitForSeconds(Random.Range(spawnIntervalMin, spawnIntervalMax));
 
-            // Limite le nombre de coins à l'écran
             if (GameObject.FindGameObjectsWithTag("Coin").Length >= maxCoinsOnScreen)
                 continue;
 
-            // Probabilité d'apparition
             if (Random.value > spawnProbability)
                 continue;
 
             float y = Random.Range(yMin, yMax);
 
-            // Optionnel : éviter les obstacles ici
-
+            
             var coin = Instantiate(coinPrefab, new Vector3(spawnX, y, 0f), Quaternion.identity);
             coin.tag = "Coin";
         }

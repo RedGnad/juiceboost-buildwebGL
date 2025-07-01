@@ -146,7 +146,6 @@ namespace Sample
 
         private IEnumerator InitializeAppKitWithRetry()
         {
-            // Force reinit on mobile WebGL even if already initialized
             bool isMobile = IsWebGLMobile();
             bool shouldReinit = AppKit.IsInitialized && isMobile;
             if (_isInitializing || (AppKit.IsInitialized && !shouldReinit))
@@ -154,7 +153,6 @@ namespace Sample
 
             _isInitializing = true;
 
-            // EVM Chain setup (unchanged)
             var monadTestnet = new Chain(
                 ChainConstants.Namespaces.Evm,
                 "10143", "Monad Testnet",
@@ -165,7 +163,6 @@ namespace Sample
                 "https://raw.githubusercontent.com/RedGnad/pokenads/master/pokenads-logo8.png"
             );
 
-            // Minimal AppKitConfig changes:
             var cfg = new AppKitConfig
             {
                 projectId = "27f51a8cead380193aaf687f55e3d4af",
@@ -178,7 +175,6 @@ namespace Sample
                 ),
                 customWallets = GetCustomWallets(),
                 connectViewWalletsCountMobile = 6,
-                // ── Prioritize only on WebGL mobile ──
                 includedWalletIds = isMobile ? new[]
                 {
                     "2bd8c14e035c2d48f184aaa168559e86b0e3433228d3c4075900a221785019b0", // Backpack
@@ -320,7 +316,6 @@ namespace Sample
             {
                 return new[]
                 {
-                    // Votre liste desktop existante…
                     new Wallet { Name="Backpack",    ImageUrl="https://backpack.app/favicon.ico",   MobileLink="backpack://", WebappLink="https://backpack.app/", Id="2bd8c14e035c2d48f184aaa168559e86b0e3433228d3c4075900a221785019b0" },
                     new Wallet { Name="HAHA",        ImageUrl="https://raw.githubusercontent.com/RedGnad/pokenads/master/pokenads-logo8.png", MobileLink="haha://", WebappLink="https://haha-wallet-url/", Id="719bd888109f5e8dd23419b20e749900ce4d2fc6858cf588395f19c82fd036b3" },
                     new Wallet { Name="MetaMask",    ImageUrl="https://metamask.io/images/favicon.ico", MobileLink="metamask://wc", WebappLink="https://metamask.io/", Id="c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96" },

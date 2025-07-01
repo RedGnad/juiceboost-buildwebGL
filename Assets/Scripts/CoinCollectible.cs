@@ -7,7 +7,7 @@ public class CoinCollectible : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             CoinManager.Instance.AddCoin();
-            gameObject.SetActive(false); // Ou Destroy(gameObject);
+            gameObject.SetActive(false); 
         }
     }
 }

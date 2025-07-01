@@ -17,18 +17,14 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Nom du paramètre bool dans l'Animator")]
     public string isFlyingParam = "isFlying";
 
-    // Composants
     private Rigidbody2D rb;
     private Animator anim;
 
-    // Contrôle
     private bool canControl = true;
     private bool isThrusting = false;
 
-    // État du sol
-    private bool isGrounded = false;
+     vbprivate bool isGrounded = false;
 
-    // État initial (pour reset)
     private Vector3 startPos;
     private float   startGravity;
     private float   startDrag;
@@ -36,15 +32,12 @@ public class PlayerController : MonoBehaviour
 
     void Awake()
     {
-        // Récupération des composants
         rb   = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
 
-        // Configuration physique
-        rb.drag = 0f;  // pas de drag pour inertie constante
+        rb.drag = 0f;
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
-        // Sauvegarde de l'état initial
         startPos     = transform.position;
         startGravity = rb.gravityScale;
         startDrag    = rb.drag;
@@ -53,7 +46,6 @@ public class PlayerController : MonoBehaviour
 
     void OnEnable()
     {
-        // Reset complet du joueur
         transform.position = startPos;
         rb.velocity        = Vector2.zero;
         rb.gravityScale    = startGravity;
@@ -67,31 +59,25 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        // Lecture de l'input (frame-rate indépendant)
         isThrusting = canControl && (Input.GetMouseButton(0) || Input.touchCount > 0);
 
-        // Animation selon l'état isGrounded
         anim.SetBool(isFlyingParam, !isGrounded);
     }
 
     void FixedUpdate()
     {
-        // Application de la poussée
         if (isThrusting)
         {
             rb.AddForce(Vector2.up * thrust, ForceMode2D.Force);
         }
     }
 
-    // Détection du sol
     void OnCollisionEnter2D(Collision2D collision)
     {
-        // Si c'est un bord/sol
         if (collision.collider.CompareTag(groundTag))
         {
             isGrounded = true;
         }
-        // Si c'est un obstacle kill
         else if (collision.collider.CompareTag(obstacleTag))
         {
             canControl = false;
@@ -101,16 +87,14 @@ public class PlayerController : MonoBehaviour
 
     void OnCollisionExit2D(Collision2D collision)
     {
-        // Quand on quitte le sol
         if (collision.collider.CompareTag(groundTag))
         {
             isGrounded = false;
         }
     }
 
-    // (Optionnel) Pour visualiser en scène la zone de groundCheck, si besoin
     void OnDrawGizmosSelected()
     {
-        // Rien ici si on n'utilise pas OverlapCircle
+        // Rien ici mon reuf
     }
 }

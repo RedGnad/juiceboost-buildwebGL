@@ -2,7 +2,6 @@ mergeInto(LibraryManager.library, {
   ShowDebugOverlay: function (messagePtr) {
     var message = UTF8ToString(messagePtr);
 
-    // Crée ou met à jour l'overlay de debug
     var overlay = document.getElementById("unity-debug-overlay");
     if (!overlay) {
       overlay = document.createElement("div");

@@ -32,7 +32,6 @@ public class CoinManager : MonoBehaviour
         coins++;
         UpdateUI();
 
-        // Joue le SFX si assigné
         if (coinCollectSfx != null && sfxAudioSource != null)
             sfxAudioSource.PlayOneShot(coinCollectSfx);
     }
