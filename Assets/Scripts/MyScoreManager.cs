@@ -95,7 +95,6 @@ public class MyScoreManager : MonoBehaviour
     [System.Runtime.InteropServices.DllImport("__Internal")]
     private static extern void GetMyScores();
 
-    // Méthode de test pour vérifier la communication JS → Unity
     public void TestCall(string msg)
     {
         Debug.LogError("=== [MyScoreManager] TestCall received: " + msg);

@@ -17,14 +17,18 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Nom du paramètre bool dans l'Animator")]
     public string isFlyingParam = "isFlying";
 
+    // Composants
     private Rigidbody2D rb;
     private Animator anim;
 
+    // Contrôle
     private bool canControl = true;
     private bool isThrusting = false;
 
-     vbprivate bool isGrounded = false;
+    // État du sol
+    private bool isGrounded = false;
 
+    // État initial (pour reset)
     private Vector3 startPos;
     private float   startGravity;
     private float   startDrag;
@@ -35,7 +39,7 @@ public class PlayerController : MonoBehaviour
         rb   = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
 
-        rb.drag = 0f;
+        rb.drag = 0f;  // pas de drag pour inertie constante
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
         startPos     = transform.position;
@@ -92,7 +96,6 @@ public class PlayerController : MonoBehaviour
             isGrounded = false;
         }
     }
-
     void OnDrawGizmosSelected()
     {
         // Rien ici mon reuf
